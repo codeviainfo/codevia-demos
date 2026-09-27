@@ -1,18 +1,20 @@
-import { motion } from 'framer-motion'
+import { useRef } from 'react'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import SplitText from '../motion/SplitText'
 import Reveal from '../motion/Reveal'
 import Magnetic from '../motion/Magnetic'
 import Counter from './Counter'
 import Icon from './Icon'
-import { STATS, ESPECIALIDADES } from '../data/content'
+import { STATS, ESPECIALIDADES, FOTOS } from '../data/content'
 
 function FloatCard({ icon, title, sub, className, delay }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 24, scale: 0.94 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true }}
       transition={{ duration: 1, delay, ease: [0.16, 1, 0.3, 1] }}
-      className={`absolute flex animate-float items-center gap-3 rounded-card border border-line bg-canvas/90 px-4 py-3 shadow-card backdrop-blur-sm ${className}`}
+      className={`absolute flex animate-float items-center gap-3 rounded-card border border-line bg-canvas/95 px-4 py-3 shadow-lift backdrop-blur-sm ${className}`}
     >
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-pill bg-accent-tint text-accent">
         <Icon name={icon} size={17} animate={false} />
@@ -26,35 +28,39 @@ function FloatCard({ icon, title, sub, className, delay }) {
 }
 
 export default function Hero() {
+  const ref = useRef(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
+
+  // Parallax por transform, compositado en GPU.
+  const imgY = useTransform(scrollYProgress, [0, 1], ['-8%', '8%'])
+
   return (
     <section id="top" className="relative isolate overflow-hidden pt-32 sm:pt-40">
-      {/* Fondo: degradados suaves en movimiento lento. La clinica no
-          tiene fotografia, asi que la atmosfera la crea la luz. */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_75%_0%,#e0f7f4,transparent_60%),radial-gradient(ellipse_at_5%_35%,#eef6fb,transparent_55%)]"
+        className="absolute inset-x-0 top-0 -z-10 h-[70vh] bg-[radial-gradient(ellipse_at_75%_0%,#e0f7f4,transparent_62%),radial-gradient(ellipse_at_5%_30%,#eef6fb,transparent_55%)]"
       />
 
-      <div className="shell grid items-center gap-16 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
-        <div>
-          <Reveal as="p" className="flex items-center gap-3 text-micro uppercase text-accent">
-            <span className="h-1.5 w-1.5 rounded-pill bg-accent" />
-            Centro médico certificado
-          </Reveal>
+      <div className="shell">
+        <Reveal as="p" className="flex items-center gap-3 text-micro uppercase text-accent">
+          <span className="h-1.5 w-1.5 rounded-pill bg-accent" />
+          Centro médico certificado
+        </Reveal>
 
-          <SplitText
-            as="h1"
-            text="Tu salud, cuidada de *principio a fin*."
-            delay={0.12}
-            className="mt-7 block max-w-[13ch] text-h1 text-ink"
-          />
+        <SplitText
+          as="h1"
+          text="Tu salud, cuidada de *principio a fin*."
+          delay={0.12}
+          className="mt-7 block max-w-[15ch] text-h1 text-ink"
+        />
 
-          <Reveal as="p" delay={0.45} className="mt-8 max-w-prose text-body-lg text-ink-body">
+        <div className="mt-10 flex flex-col gap-10 border-t border-line pt-10 sm:mt-12 sm:flex-row sm:items-end sm:justify-between sm:gap-16">
+          <Reveal as="p" delay={0.4} className="max-w-prose text-body-lg text-ink-body">
             Fisioterapia, odontología y medicina estética en un mismo centro.
             Diagnóstico claro, seguimiento cercano y citas sin esperas.
           </Reveal>
 
-          <Reveal delay={0.55} className="mt-10 flex flex-wrap items-center gap-4">
+          <Reveal delay={0.5} className="flex shrink-0 flex-wrap items-center gap-4">
             <Magnetic>
               <a
                 href="#cita"
@@ -72,67 +78,65 @@ export default function Hero() {
               <span className="h-px w-5 bg-current transition-all duration-500 ease-out group-hover:w-9" />
             </a>
           </Reveal>
-
-          <Reveal delay={0.7} className="mt-16 grid grid-cols-3 gap-6 border-t border-line pt-10">
-            {STATS.map((stat) => (
-              <div key={stat.label}>
-                <p className="text-stat text-ink">
-                  <Counter
-                    to={stat.to}
-                    prefix={stat.prefix}
-                    suffix={stat.suffix}
-                    decimals={stat.decimals}
-                    locale={stat.locale}
-                  />
-                </p>
-                <p className="mt-2 text-caption text-muted">{stat.label}</p>
-              </div>
-            ))}
-          </Reveal>
         </div>
+      </div>
 
-        {/* Composicion abstracta: orbe en deriva, anillos y tarjetas. */}
-        <div aria-hidden="true" className="relative mx-auto hidden aspect-square w-full max-w-md lg:block">
-          <div className="absolute inset-[12%] animate-drift rounded-pill bg-[conic-gradient(from_180deg,#0d9488,#67e8f9,#a7f3d0,#0d9488)] opacity-25 blur-2xl" />
-          {[0, 1, 2].map((i) => (
-            <motion.div
-              key={i}
-              initial={{ scale: 0.7, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 1.4, delay: 0.2 + i * 0.16, ease: [0.16, 1, 0.3, 1] }}
-              style={{ inset: `${i * 11}%` }}
-              className="absolute rounded-pill border border-accent/20"
-            />
-          ))}
-          <motion.div
-            initial={{ scale: 0.86, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 1.2, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute inset-[26%] flex flex-col items-center justify-center rounded-pill border border-line bg-canvas/70 backdrop-blur-sm"
-          >
-            <span className="font-display text-h2 italic text-accent">24h</span>
-            <span className="mt-1 text-micro uppercase text-muted">Respuesta</span>
-          </motion.div>
+      {/* Fotografía ancha del centro: entra desvelándose desde abajo
+          y se desplaza en parallax. Es el LCP, así que no lleva lazy. */}
+      <div ref={ref} className="shell mt-14 sm:mt-16">
+        <motion.figure
+          initial={{ clipPath: 'inset(14% 0 0 0)', opacity: 0 }}
+          animate={{ clipPath: 'inset(0% 0 0 0)', opacity: 1 }}
+          transition={{ duration: 1.3, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          className="relative overflow-hidden rounded-xl bg-mist"
+        >
+          <motion.img
+            src={FOTOS.hero.src}
+            alt={FOTOS.hero.alt}
+            width={2000}
+            height={1125}
+            fetchPriority="high"
+            decoding="async"
+            style={{ y: imgY }}
+            className="aspect-[4/3] h-[118%] w-full object-cover sm:aspect-[16/9]"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/25 via-transparent to-transparent" />
 
           <FloatCard
             icon="check"
             title="Cita confirmada"
             sub="Hoy, 17:30 h"
-            delay={0.75}
-            className="left-0 top-[16%]"
+            delay={1}
+            className="left-4 top-6 sm:left-8 sm:top-10"
           />
           <FloatCard
-            icon="brain"
-            title="Seguimiento"
-            sub="Cercano y humano"
-            delay={0.95}
-            className="bottom-[14%] right-0 [animation-delay:1.6s]"
+            icon="clock"
+            title="Respuesta en 24 h"
+            sub="Por teléfono o WhatsApp"
+            delay={1.2}
+            className="bottom-6 right-4 [animation-delay:1.6s] sm:bottom-10 sm:right-8"
           />
-        </div>
+        </motion.figure>
       </div>
 
-      {/* Cinta de especialidades, sin bucle duplicado de imagenes. */}
-      <div className="mt-24 overflow-hidden border-y border-line bg-canvas py-5">
+      <div className="shell mt-14 grid grid-cols-1 gap-8 border-t border-line pt-10 sm:mt-16 sm:grid-cols-3">
+        {STATS.map((stat, i) => (
+          <Reveal key={stat.label} delay={i * 0.1}>
+            <p className="text-stat text-ink">
+              <Counter
+                to={stat.to}
+                prefix={stat.prefix}
+                suffix={stat.suffix}
+                decimals={stat.decimals}
+                locale={stat.locale}
+              />
+            </p>
+            <p className="mt-2 text-caption text-muted">{stat.label}</p>
+          </Reveal>
+        ))}
+      </div>
+
+      <div className="mt-20 overflow-hidden border-y border-line bg-canvas py-5">
         <div className="flex w-max animate-marquee">
           {[0, 1].map((copy) => (
             <div key={copy} className="flex shrink-0 items-center">

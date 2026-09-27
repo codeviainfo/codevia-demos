@@ -1,7 +1,8 @@
-import { motion } from 'framer-motion'
+import { useRef } from 'react'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import SplitText from '../motion/SplitText'
 import Reveal from '../motion/Reveal'
-import { PORQUE, OPINIONES } from '../data/content'
+import { PORQUE, OPINIONES, FOTOS } from '../data/content'
 
 function Estrellas() {
   return (
@@ -28,9 +29,16 @@ function Estrellas() {
 }
 
 export default function Porque() {
+  const fotoRef = useRef(null)
+  const { scrollYProgress } = useScroll({
+    target: fotoRef,
+    offset: ['start end', 'end start'],
+  })
+  const y = useTransform(scrollYProgress, [0, 1], ['-9%', '9%'])
+
   return (
     <section id="equipo" className="py-28 sm:py-36 lg:py-44">
-      <div className="shell grid gap-16 lg:grid-cols-2 lg:gap-24">
+      <div className="shell grid gap-16 lg:grid-cols-[1fr_0.85fr] lg:gap-20">
         <div>
           <Reveal as="p" className="flex items-center gap-3 text-micro uppercase text-accent">
             <span className="h-1.5 w-1.5 rounded-pill bg-accent" />
@@ -68,20 +76,49 @@ export default function Porque() {
           </ol>
         </div>
 
-        {/* Las opiniones se apilan escalonadas y se enderezan al pasar
-            el raton: dan volumen sin necesidad de fotografia. */}
-        <div id="opiniones" className="flex flex-col justify-center gap-5 lg:pt-16">
+        {/* Foto del centro, alta y con parallax: acompaña a la lista
+            sin competir con ella. */}
+        <div ref={fotoRef} className="lg:pt-24">
+          <motion.figure
+            initial={{ clipPath: 'inset(0 0 14% 0)', opacity: 0 }}
+            whileInView={{ clipPath: 'inset(0 0 0% 0)', opacity: 1 }}
+            viewport={{ once: true, margin: '0px 0px -12% 0px' }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            className="relative h-full overflow-hidden rounded-xl bg-mist"
+          >
+            <motion.img
+              src={FOTOS.centro.src}
+              alt={FOTOS.centro.alt}
+              width={1400}
+              height={1050}
+              loading="lazy"
+              decoding="async"
+              style={{ y }}
+              className="aspect-[4/3] h-[118%] w-full object-cover lg:aspect-[3/4]"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/55 via-ink/5 to-transparent" />
+            <figcaption className="absolute inset-x-0 bottom-0 p-7">
+              <p className="text-micro uppercase text-white/70">El centro</p>
+              <p className="mt-2 text-title text-white">
+                Espacios amplios, luminosos y sin salas de espera llenas
+              </p>
+            </figcaption>
+          </motion.figure>
+        </div>
+      </div>
+
+      {/* Opiniones a ancho completo, en tres columnas. */}
+      <div id="opiniones" className="shell mt-24 sm:mt-32">
+        <Reveal as="h3" className="text-micro uppercase text-accent">
+          Lo que dicen nuestros pacientes
+        </Reveal>
+
+        <div className="mt-10 grid gap-5 md:grid-cols-3 md:gap-6">
           {OPINIONES.map((op, i) => (
-            <Reveal
-              key={op.autor}
-              delay={i * 0.12}
-              y={34}
-              className={i % 2 === 0 ? 'lg:ml-0 lg:mr-8' : 'lg:ml-8 lg:mr-0'}
-            >
-              <figure className="group rounded-xl border border-line bg-canvas p-8 shadow-card transition-all duration-600 ease-out hover:-translate-y-1.5 hover:border-accent/40 hover:shadow-lift">
+            <Reveal key={op.autor} delay={i * 0.1} y={30} className="h-full">
+              <figure className="group flex h-full flex-col rounded-xl border border-line bg-canvas p-8 shadow-card transition-all duration-600 ease-out hover:-translate-y-1.5 hover:border-accent/40 hover:shadow-lift">
                 <Estrellas />
-                <blockquote className="mt-5 text-body-lg text-ink">
-                  <span className="font-display text-h3 italic leading-none text-accent/40">“</span>
+                <blockquote className="mt-5 flex-1 text-body-lg text-ink">
                   {op.texto}
                 </blockquote>
                 <figcaption className="mt-6 flex items-center gap-3 border-t border-line-soft pt-5">

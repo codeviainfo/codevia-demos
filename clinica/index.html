@@ -18,6 +18,9 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap"
     />
+
+    <!-- El hero es el LCP: se descarga con prioridad, sin esperar a React. -->
+    <link rel="preload" as="image" href="/img/hero.jpg" fetchpriority="high" />
   </head>
   <body class="bg-canvas">
     <div id="root"></div>
