@@ -1,0 +1,11 @@
+{
+  "name": "demo-clinica",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5183",
+    "build": "vite build",
+    "preview": "vite preview --port 5183"
+  }
+}

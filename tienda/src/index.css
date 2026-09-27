@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-void font-sans text-body text-chalk-dim antialiased;
+  }
+
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-void rounded-[2px];
+  }
+
+  :where(section, div)[id] {
+    scroll-margin-top: 7rem;
+  }
+
+  /* El cursor nativo solo se oculta si el JS confirmo raton fino.
+     El `cursor:none` global del CSS original era una trampa: si
+     fallaba el script, el usuario se quedaba sin puntero. */
+  body.has-custom-cursor,
+  body.has-custom-cursor a,
+  body.has-custom-cursor button {
+    cursor: none;
+  }
+}
+
+@layer utilities {
+  .shell {
+    @apply mx-auto w-full max-w-shell px-6 sm:px-10 lg:px-14;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

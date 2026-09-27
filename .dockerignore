@@ -1,0 +1,8 @@
+# Nunca enviar al daemon de Docker: pesa y se regenera dentro del build.
+node_modules
+**/node_modules
+**/dist
+.git
+.gitignore
+*.log
+npm-debug.log*

@@ -1,0 +1,34 @@
+{
+  "name": "codevia-demos",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Plantillas demo de Codevia (restaurante, clinica, tienda) — React + Tailwind, servidas estaticas por un unico nginx.",
+  "workspaces": [
+    "restaurante",
+    "clinica",
+    "tienda"
+  ],
+  "scripts": {
+    "dev:restaurante": "npm run dev -w restaurante",
+    "dev:clinica": "npm run dev -w clinica",
+    "dev:tienda": "npm run dev -w tienda",
+    "build": "npm run build -w restaurante && npm run build -w clinica && npm run build -w tienda",
+    "build:restaurante": "npm run build -w restaurante",
+    "build:clinica": "npm run build -w clinica",
+    "build:tienda": "npm run build -w tienda",
+    "preview:restaurante": "npm run preview -w restaurante"
+  },
+  "dependencies": {
+    "framer-motion": "^12.43.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.1",
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.15",
+    "tailwindcss": "^3.4.19",
+    "vite": "^8.0.12"
+  }
+}

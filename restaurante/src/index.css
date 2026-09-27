@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-void text-body font-sans text-cream-dim antialiased;
+  }
+
+  /* Foco visible y coherente en todo el sitio. Nunca se elimina
+     el outline sin sustituto. */
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    @apply outline-none ring-2 ring-gold ring-offset-2 ring-offset-void rounded-[2px];
+  }
+
+  :where(section, div)[id] {
+    scroll-margin-top: 5rem;
+  }
+
+  /* El cursor nativo solo se oculta si el JS ha confirmado que hay
+     raton fino. Si el script falla, el cursor sigue existiendo:
+     el `cursor:none` global del CSS anterior era una trampa. */
+  body.has-custom-cursor,
+  body.has-custom-cursor a,
+  body.has-custom-cursor button {
+    cursor: none;
+  }
+}
+
+@layer utilities {
+  .shell {
+    @apply mx-auto w-full max-w-shell px-6 sm:px-10 lg:px-16;
+  }
+
+  /* Grano de pelicula: da textura sin coste de red (SVG inline). */
+  .grain::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
