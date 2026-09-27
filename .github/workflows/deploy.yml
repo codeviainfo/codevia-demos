@@ -1,0 +1,66 @@
+name: Deploy Demos
+
+on:
+  push:
+    branches: [main]
+  # Permite lanzarlo a mano desde la pestaña Actions sin hacer un push.
+  workflow_dispatch:
+
+# El VPS tiene 1 vCPU. Dos builds a la vez lo tumbarían, así que los
+# despliegues se encolan: uno en curso nunca se solapa con el siguiente.
+concurrency:
+  group: deploy-demos
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Construir y desplegar en el VPS
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Desplegar por SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          # El puerto se omite a propósito: la acción usa el 22 por
+          # defecto, que es el del servidor. Guardarlo como "secreto"
+          # no protegía nada y era un valor más que mantener.
+          # 18 min: el build son ~3-5 min en 1 vCPU, con margen de sobra.
+          command_timeout: 18m
+          script: |
+            set -e
+
+            # `reset --hard` en lugar de `pull`: esto es un destino de
+            # despliegue, no una copia de trabajo. Así un fichero tocado
+            # a mano en el servidor nunca provoca un conflicto de merge.
+            cd /opt/codevia/CODEVIA-DEMOS
+            git fetch --prune origin main
+            git reset --hard origin/main
+
+            cd /opt/codevia/deploy
+            make rebuild-demos
+
+            # Limpieza: solo restos sin uso. No toca contenedores en
+            # marcha, ni imágenes en uso, ni volúmenes. El disco del VPS
+            # va al 71 % y cada build deja caché nueva.
+            docker image prune -f
+            docker builder prune -f --keep-storage=1GB
+
+      - name: Comprobar que las tres demos responden
+        run: |
+          fallos=0
+          for h in demo-restaurante demo-clinica demo-tienda; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" \
+                    --retry 6 --retry-delay 5 --retry-all-errors \
+                    --max-time 20 "https://$h.codeviaesp.com/")
+            if [ "$code" = "200" ]; then
+              echo "OK   $h.codeviaesp.com -> $code"
+            else
+              echo "FALLO $h.codeviaesp.com -> $code"
+              fallos=$((fallos + 1))
+            fi
+          done
+          [ "$fallos" -eq 0 ]
