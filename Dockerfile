@@ -19,6 +19,7 @@ COPY package.json package-lock.json ./
 COPY restaurante/package.json restaurante/
 COPY clinica/package.json clinica/
 COPY tienda/package.json tienda/
+COPY asesoria/package.json asesoria/
 RUN npm ci
 
 COPY . .
@@ -36,6 +37,7 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/restaurante/dist /usr/share/nginx/html/restaurante
 COPY --from=build /app/clinica/dist    /usr/share/nginx/html/clinica
 COPY --from=build /app/tienda/dist     /usr/share/nginx/html/tienda
+COPY --from=build /app/asesoria/dist   /usr/share/nginx/html/asesoria
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
